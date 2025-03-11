@@ -89,7 +89,7 @@ func (co CandleOutput) Error() string {
 //	30 minute: 200 days
 //	1 hour: 400 days
 //	1 day: 2000 days
-func (c *Client) Candle(ctx context.Context, input CandleInput) ([]*Candle, error) {
+func (c *Client) Candle(ctx context.Context, input CandleInput) (Candles, error) {
 	if input.ToTime.Sub(input.FromTime).Hours()/24 > float64(maxDays[input.Interval]) {
 		return nil, errors.New("maximum days exceeded")
 	}
