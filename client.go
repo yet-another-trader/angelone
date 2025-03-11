@@ -66,7 +66,7 @@ func NewClient(ctx context.Context, opts ...Option) *Client {
 	}
 
 	if c.cachePath != nil {
-		c.load()
+		_ = c.load()
 	}
 
 	// try getting profile
