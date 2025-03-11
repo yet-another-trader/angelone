@@ -55,7 +55,7 @@ type CandleInput struct {
 	ToTime      time.Time `json:"-"`
 }
 
-type OHLCV struct {
+type Candle struct {
 	Time   time.Time
 	Open   decimal.Decimal
 	High   decimal.Decimal
@@ -63,6 +63,8 @@ type OHLCV struct {
 	Close  decimal.Decimal
 	Volume uint
 }
+
+type Candles []*Candle
 
 type CandleOutput struct {
 	Status    bool   `json:"status"`
@@ -87,7 +89,7 @@ func (co CandleOutput) Error() string {
 //	30 minute: 200 days
 //	1 hour: 400 days
 //	1 day: 2000 days
-func (c *Client) Candle(ctx context.Context, input CandleInput) ([]*OHLCV, error) {
+func (c *Client) Candle(ctx context.Context, input CandleInput) ([]*Candle, error) {
 	if input.ToTime.Sub(input.FromTime).Hours()/24 > float64(maxDays[input.Interval]) {
 		return nil, errors.New("maximum days exceeded")
 	}
@@ -120,7 +122,7 @@ func (c *Client) Candle(ctx context.Context, input CandleInput) ([]*OHLCV, error
 	}
 
 	layout := "2006-01-02T15:04:05-07:00"
-	prices := make([]*OHLCV, len(res.RawData))
+	prices := make([]*Candle, len(res.RawData))
 	for i, data := range res.RawData {
 		arr, ok := data.([]any)
 		if !ok {
@@ -129,7 +131,7 @@ func (c *Client) Candle(ctx context.Context, input CandleInput) ([]*OHLCV, error
 
 		parsedTime, _ := time.Parse(layout, arr[0].(string))
 
-		prices[i] = &OHLCV{
+		prices[i] = &Candle{
 			Time:   parsedTime,
 			Open:   decimal.NewFromFloat(arr[1].(float64)),
 			High:   decimal.NewFromFloat(arr[2].(float64)),
